@@ -1,4 +1,4 @@
-package com.mauricionoj.quimicaanalizador;
+package com.mauricionoj.quimica;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,11 +12,13 @@ public class WebConfig {
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
-            public void addMapping("/**")
-                    .allowedOrigins("*") // Esto permite que cualquier origen conecte
-                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                    .allowedHeaders("*")
-                    .allowCredentials(false);
-        }
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("*")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(false);
+            }
+        };
     }
 }
