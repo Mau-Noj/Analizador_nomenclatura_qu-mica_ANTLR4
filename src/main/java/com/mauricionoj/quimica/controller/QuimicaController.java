@@ -4,6 +4,7 @@ import com.mauricionoj.quimica.QuimicaLexer;
 import com.mauricionoj.quimica.QuimicaParser;
 import com.mauricionoj.quimica.model.PreguntaQuiz;
 import com.mauricionoj.quimica.model.ResultadoAnalisis;
+import com.mauricionoj.quimica.service.BalanceoService;
 import com.mauricionoj.quimica.service.NomenclaturService;
 import com.mauricionoj.quimica.service.QuizService;
 import com.mauricionoj.quimica.visitor.FormulaVisitor;
@@ -22,11 +23,14 @@ public class QuimicaController {
 
     private final NomenclaturService nomenclaturService;
     private final QuizService        quizService;
+    private final BalanceoService    balanceoService;
 
     public QuimicaController(NomenclaturService nomenclaturService,
-                              QuizService quizService) {
+                         QuizService quizService,
+                         BalanceoService balanceoService) {
         this.nomenclaturService = nomenclaturService;
         this.quizService        = quizService;
+        this.balanceoService    = balanceoService;
     }
 
     // ══════════════════════════════════════════════════════════════════════
@@ -190,6 +194,22 @@ public class QuimicaController {
         return ResponseEntity.ok(sinRespuesta);
     }
 
+    @PostMapping("/balancear")
+public ResponseEntity<Map<String, Object>> balancearEcuacion(
+        @RequestBody Map<String, String> body) {
+    String ecuacion = body.getOrDefault("ecuacion", "").trim();
+    if (ecuacion.isEmpty()) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", "El campo 'ecuacion' es requerido."));
+    }
+    try {
+        Map<String, Object> resultado = balanceoService.balancear(ecuacion);
+        return ResponseEntity.ok(resultado);
+    } catch (Exception e) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", e.getMessage(), "valida", false));
+    }
+}
     // ══════════════════════════════════════════════════════════════════════
     // POST /api/quiz/responder
     // Body: { "formula": "H2O", "respuesta": "óxido de dihidrógeno" }
